@@ -1,0 +1,105 @@
+今日の流れ
+
+お問い合わせフォームの作成
+
+顧客：お問い合わせフォームへ内容を入力
+
+システム側：
+フォームから送信されたデータを受け取り、入力内容に間違いがないか
+確認画面を表示
+選択により、それぞれの処理をする
+
+    分岐　送信選択：データベースにお問い合わせ内容を登録後、送信完了画面を表示
+        　再入力：入力した値を項目に表示させ入力画面に戻る
+        　戻る：入力をやめ、トップページに戻る
+
+お問い合わせシステム
+
+1.お問い合わせの文字をクリックしたら、お問い合わせ画面へ飛ぶ
+    流れ
+        view
+        画面へ飛ぶための、リンクの作成
+            要素:a リクエスト:get リンク：任意
+        例）<a href="相対的に見たfilepass">
+
+        ruote
+        送られてきたリンクを元に対応したルーティングを行う
+            Route::get('リンク',[任意のcontroller::class,'処理'])
+                    ->name(任意の名前)
+
+        ※nameをつけると送るがわで同じ名前を指定すると、nameの
+        　書かれたRouteをルーティングする
+        　こうすることにより、リンク先の変更などをroute側のみにする
+        　ことができ効率的。
+
+        controller
+        routeで送られた処理を行う
+            public ～～controller extends controller{
+                public function ○○(){
+                    処理;
+                    return view()
+                }
+                .
+                .
+                .
+                .
+            }
+
+
+
+            要素：form　リクエスト：get リンク：任意
+
+
+2.問い合わせ内容の入力＆送信
+3.入力確認画面＆どうするかの選択
+　A:送信する
+　B:再入力する
+　C:入力をやめる
+
+送信する　入力内容をデータベースのテーブルに追加する
+
+    code
+
+    view
+        <form action="{{route('store')}}" method="post">
+            @csrf:XSS対策
+
+            <input type="hidden" name ="hoge" value="{{$request->hoge}}">
+                ->入力項目の数だけ持っていく
+
+            submit　送信
+        </form>
+
+    routing
+        Route::post(URL,[任意のController::class,'store'])
+        ->name('store');
+
+    Controller
+
+    use repositry用のpath
+    use request用のpass
+        public function store(Request $request){
+            repositryの中のモデルを扱う関数に持ってきた
+            送信データを引数として渡す。
+            this->任意のrepository->関数($request);
+        }
+
+    repositry
+
+    use modelのpath
+
+    　public function (Request $request){
+        //モデルクラスのインスタンス作成(要はレコード)
+        $model = new model();
+
+        //レコードの各項目に値を入れていく
+        $model->hoge = $request->hoge;
+        //※入れなければいけない項目の分だけ追記する
+
+        //値を入れたレコードを追加する
+        $model->save();
+
+        return redirect()->route('リンク先のname');
+    }
+
+
